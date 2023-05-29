@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="node_modules\bootstrap\dist\css\bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules\bootstrap\dist\css\bootstrap.css">
+
+</head>
+<style>
+    .card {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+
+    thead th {
+        position: sticky;
+        top: 0;
+        background-color: white;
+    }
+
+    table {
+        table-layout: fixed;
+    }
+</style>
+
+<body style="height: 100vh; display: flex;flex-direction: column; padding-top: 15px;">
+    <div class="container text-center ">
+        <div class="card position-sticky top-0">
+            <p class="card-title mt-4">TodAPP</p>
+            <form action="" id="myForm">
+                <div class="card-body">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 gy-2 justify-content-center ">
+
+                        <div class="col ">
+                            <div class="form-group">
+                                <label>Task Name</label>
+                                <input type="text" class="form-control" placeholder="task id" id="name" required>
+                            </div>
+                        </div>
+                        <div class="col ">
+                            <div class="form-group">
+                                <label>Task Status</label>
+                                <select class="form-control" name="" id="status" required>
+                                    <option value="">--Select--</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Success">Success</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col ">
+                            <div class="form-group">
+                                <label>DueDate</label>
+                                <input type="date" class="form-control" placeholder="task id" id="date" required>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <label class=" text-success d-block" id="lab"></label>
+                <div class="col mb-4">
+                    <button class="btn btn-primary" type="submit">submit</button>
+
+                </div>
+
+            </form>
+
+
+
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 gy-2  justify-content-center mt-4">
+
+            <div class="col ">
+                <div class="input-group">
+                    <select id="sortOptions" class="form-select">
+
+                        <option value="">--Search By--</option>
+                        <option value="taskid">Task ID </option>
+                        <option value="taskname">Task Name</option>
+                        <option value="status">Status </option>
+                        <option value="duedate">Date </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="col">
+                <div class="form-group">
+
+                    <input type="text" class="form-control" placeholder="Enter Value" id="search" required>
+
+                </div>
+            </div>
+            <div class="col ">
+                <div class="input-group">
+                    <select id="sortOptions2" class="form-select">
+
+                        <option value="">--Sort By--</option>
+                        <option value="taskid">Task ID </option>
+                        <option value="taskname">Task Name</option>
+                        <option value="status">Status </option>
+                        <option value="duedate">Date </option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="col  ">
+                <div class="form-group">
+                    <button onclick="sort()" class="btn btn-primary" id="search">Search</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row " id="row">
+
+            <div class="col gy-5">
+                <caption>Basic Table Layout</caption>
+                <table class="table table-bordered table-striped table-responsive">
+
+                    <thead class="position-sticky top-0">
+                        <tr>
+                            <th>Task id</th>
+                            <th>Task Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablebody">
+
+                    </tbody>
+                    </thead>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    <script>
+
+        let row;
+        let updateid = ''
+        let todo = []
+        const savedtodo = JSON.parse(localStorage.getItem('todos'))
+        if (Array.isArray(savedtodo)) {
+            todo = savedtodo
+            filltable(todo)
+        }
+        else {
+            todo = []
+        }
+
+
+        const selected = document.getElementById('sortOptions')
+        const sortoption = document.getElementById('sortOptions2')
+        const search = document.getElementById('search')
+
+        function sort() {
+            const selectedvalue = selected.value
+            const searchvalue = search.value
+
+
+            let newtodos = todo.filter(array => {
+                if (array[selectedvalue] == searchvalue) {
+                    return true
+                }
+                else {
+                    return false
+                }
+            })
+            sortData(newtodos)
+        }
+
+
+
+        function sortData(newtodo) {
+            const sortBy = sortoption.value
+            if (sortBy == '') {
+                console.log(newtodo)
+                filltable(newtodo)
+                return
+            }
+
+            switch (sortBy) {
+                case 'taskid':
+                    newtodo.sort((a, b) => a.taskid - b.taskid);
+                    break;
+                case 'taskname':
+                    newtodo.sort((a, b) => a.taskname.localeCompare(b.taskname));
+                    break;
+                case 'duedate':
+                    newtodo.sort((a, b) => a.duedate - b.duedate);
+                    break;
+                case 'status':
+                    newtodo.sort((a, b) => a.status.localeCompare(b.status));
+                    break;
+                default:
+                    break;
+            }
+            filltable(newtodo)
+        }
+        function savedata() {
+            localStorage.setItem('todos', JSON.stringify(todo))
+        }
+
+
+
+        const form = document.querySelector('#myForm')
+        let err = document.getElementById('lab')
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            if (updateid == '') {
+                addtoarray()
+
+            }
+            else {
+                updatearray(updateid)
+
+
+            }
+
+        });
+
+        function getdata() {
+            const id = new Date().getTime()
+            const name = document.getElementById('name')
+            const date = document.getElementById('date')
+            const status = document.getElementById('status')
+            const data = ({
+                taskid: id,
+                taskname: name.value,
+                duedate: date.value,
+                status: status.value
+            })
+
+            return data
+        }
+
+        function addtoarray() {
+            const data = getdata()
+            todo.push(data)
+            savedata()
+            err.innerHTML = "Add sucess"
+
+            filltable(todo)
+            clearinputs()
+
+        }
+
+
+
+
+
+
+
+
+
+
+        function clearinputs() {
+
+            document.getElementById('name').value = ''
+            document.getElementById('date').value = ''
+            document.getElementById('status').value = ''
+
+        }
+
+        function filltable(data) {
+
+            const tbody = document.querySelector('#tablebody')
+            tbody.innerHTML = ''
+            data.forEach(array => {
+                let buttonid = ''
+                const row = tbody.insertRow();
+                for (const key in array) {
+                    if (array.hasOwnProperty(key)) {
+                        const cell = row.insertCell();
+                        cell.innerText = array[key];
+                        buttonid = array.taskid
+
+                    }
+
+                }
+
+                const editbutton = document.createElement('button')
+                editbutton.textContent = ' Edit '
+                editbutton.id = buttonid
+                editbutton.style.backgroundColor = "lightgreen"
+                editbutton.style.width = "70px"
+                editbutton.style.borderRadius = "5px"
+                row.insertCell().appendChild(editbutton)
+                editbutton.onclick = edit
+
+
+
+                const deletebutton = document.createElement('button')
+                deletebutton.textContent = 'Delete'
+                deletebutton.id = buttonid
+                deletebutton.style.backgroundColor = "red"
+                deletebutton.style.width = "70px"
+                deletebutton.style.borderRadius = "5px"
+                row.insertCell().appendChild(deletebutton)
+                deletebutton.onclick = delet
+
+            });
+        }
+
+
+
+
+        function edit(event) {
+            const editButton = event.target;
+            updateid = editButton.id
+            row = editButton.closest('tr');
+            document.getElementById('name').value = row.cells[1].textContent
+            document.getElementById('date').value = row.cells[2].textContent
+            document.getElementById('status').value = row.cells[3].textContent
+        }
+        function updatearray(updateid) {
+            const confirmation = confirm('Are you sure you want to Edit this item?');
+            if (confirmation) {
+                const data = getdata()
+                todo = todo.filter(array => {
+                    for (const key in array) {
+                        if (array[key] == updateid) {
+                            array.taskname = data.taskname
+                            array.duedate = data.duedate
+                            array.status = data.status
+                            return true
+                        }
+                        else {
+                            return true
+                        }
+
+
+                    }
+
+                });
+                savedata()
+                err.innerHTML = "Update sucess"
+                filltable(todo)
+
+
+                clearinputs()
+            }
+            updateid = ''
+
+        }
+
+
+
+        function delet(event) {
+            const confirmation = confirm('Are you sure you want to Delete this item?');
+            if (confirmation) {
+                const deletebutton = event.target;
+                const deleteid = deletebutton.id
+                todo = todo.filter(todos => {
+                    if (todos.taskid == deleteid) {
+                        return false
+                    }
+                    else {
+                        return true
+                    }
+
+                })
+                savedata()
+            }
+            filltable(todo)
+        }
+
+
+    </script>
+    <script src="node_modules\@popperjs\core\dist\umd\popper.min.js"></script>
+</body>
+
+</html>
